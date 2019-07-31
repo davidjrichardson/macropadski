@@ -1,6 +1,7 @@
 #include <Bounce2.h>
+#include <Keyboard.h>
 
-#define DEBUG true
+#define DEBUG false
 
 /**************************
  ******** PIN DEFS ********
@@ -18,10 +19,10 @@ int row2Pin = 3;
 
 int rowPins[] = {row1Pin, row2Pin};
 
+
 /***************************
  ***** KEY MATRIX DEFS *****
  ***************************/
-
 Bounce key1 = Bounce();
 Bounce key2 = Bounce();
 Bounce key3 = Bounce();
@@ -38,6 +39,17 @@ Bounce *keys[2][5] = {
   {&key1, &key2, &key3, &key4,  &key5}, // Row 1
   {&key6, &key7, &key8, &key9, &key10}  // Row 2
 };
+
+
+/*************************
+ ***** KEY CODE DEFS *****
+ *************************/
+char ctrlKey = 128|131;
+char keyCodes[2][5] = {
+  {240, 241, 242, 243, 244}, // Row 1
+  {245, 246, 247, 248, 249}  // Row 2
+};
+
 
 void setup() {
   // Set the row pins to high outputs
@@ -66,6 +78,8 @@ void setup() {
     while (!Serial) {;}
   }
 
+  Keyboard.begin();
+
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
@@ -83,14 +97,21 @@ void loop() {
       key->update();
 
       if (key->fell()) {
-        // TODO: Send the key code to the system
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(100);
-        digitalWrite(LED_BUILTIN, LOW);
+        Serial.printf("Key code: 0x%x\n", keyCodes[i][k]);
+//
+//        Keyboard.press(ctrlKey);
+        Keyboard.press(keyCodes[i][k]);
+        Keyboard.releaseAll();
+
+        if (DEBUG) {
+          digitalWrite(LED_BUILTIN, HIGH);
+          delay(100);
+          digitalWrite(LED_BUILTIN, LOW);
+        }
       }
     }
       
     digitalWrite(lowRow, HIGH);
-    delayMicroseconds(500);
+    delay(1);
   }
 }
